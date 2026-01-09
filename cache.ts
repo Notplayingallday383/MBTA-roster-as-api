@@ -1,5 +1,5 @@
 import { promises as fs } from "fs";
-import path from "path";
+import path from "node:path";
 
 const RELOAD_TIME = (Number(process.env.RELOAD_TIME_HOURS) || 6) * 60 * 60 * 1000;
 const CACHE_PATH = path.resolve("cached.html");

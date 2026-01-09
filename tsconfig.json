@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2024",
-    "module": "esnext",
+    "module": "nodenext",
     "moduleResolution": "nodenext",
     "outDir": "dist",
     "rootDir": ".",
@@ -10,6 +10,6 @@
     "resolveJsonModule": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts", "utils/**/*.ts", "serve.ts"],
+  "include": ["src/**/*.ts", "utils/**/*.ts", "serve.ts", "cache.ts"],
   "exclude": ["node_modules", "dist"]
 }
