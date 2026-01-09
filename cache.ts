@@ -17,7 +17,7 @@ async function fileExists(filePath: string): Promise<boolean> {
 }
 
 async function saveFS(url: string): Promise<string> {
-	const response = await fetch(url, { headers: { "User-Agent": "mbta-roster-cache" } });
+	const response = await fetch(url, { headers: { "User-Agent": "API Cacher" } });
 	if (!response.ok) {
 		throw new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
 	}
@@ -58,6 +58,7 @@ function startTimer(url: string): void {
 	if (timerStarted) return;
 	timerStarted = true;
 	setInterval(() => {
+		console.log("Updating cache")
 		void getCache(url).catch((err) => {
 			console.error("Cache refresh failed", err);
 		});
