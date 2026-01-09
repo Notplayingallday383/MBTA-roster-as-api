@@ -108,6 +108,7 @@ The server will start on `http://localhost:3000` by default. You can change the 
 ## Environment Variables
 
 - `PORT` - Server port (default: 3000)
+- `RELOAD_TIME_HOURS` - Cache reload interval in hours (default: 6)
 
 ## Data Source
 
@@ -115,5 +116,4 @@ Data is sourced from [NETransit MBTA Vehicle Inventory](http://roster.transithis
 
 ## License
 
-Apache-2.0
-
+[Apache-2.0](LICENSE)
