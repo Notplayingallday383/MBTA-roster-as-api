@@ -3,17 +3,15 @@ import { config } from "dotenv";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { load } from "cheerio";
-import { cacher } from "./cache.js";
 
 config();
 
 const PORT = Number(process.env.PORT ?? 3000);
-const CACHE_PATH = path.resolve("cached.html");
 const SOURCE_URL = "http://roster.transithistory.org/";
-await cacher(SOURCE_URL);
 
-async function getCache(): Promise<string> {
-  return fs.readFile(CACHE_PATH, "utf8");
+async function getCache() {
+  const resp = await fetch("http://roster.transithistory.org/");
+  return await resp.text();
 }
 
 function getBL(html: string) {
@@ -162,7 +160,6 @@ const app = express();
 app.get("/", (_req, res) => {
   res.json({ 
     status: "ok", 
-    cache: path.basename(CACHE_PATH), 
     source: SOURCE_URL,
     endpoints: {
       blueLine: "/api/bl",
