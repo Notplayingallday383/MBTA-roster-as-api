@@ -1,17 +1,22 @@
 import express from "express";
 import { config } from "dotenv";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { load } from "cheerio";
 
 config();
 
 const PORT = Number(process.env.PORT ?? 3000);
-const SOURCE_URL = "http://roster.transithistory.org/";
 
 async function getCache() {
   const resp = await fetch("http://roster.transithistory.org/");
   return await resp.text();
+}
+
+function getUpdatedDate(html: string): string {
+  const $ = load(html);
+  const paragraphs = $("p").toArray().map((el) => $(el).text().replace(/\s+/g, " ").trim());
+  const versionText = paragraphs.find((t) => t.match(/\d{1,2}\/\d{1,2}\/\d{2}\s+Version/i));
+  const match = versionText?.match(/(\d{1,2}\/\d{1,2}\/\d{2})\s+Version/i);
+  return match ? match[1] : "unknown";
 }
 
 function getBL(html: string) {
@@ -20,7 +25,8 @@ function getBL(html: string) {
   const actives = paragraphs.find((t) => t.includes("Blue Line Active Fleet"));
   const activeMatch = actives?.match(/Blue Line Active Fleet\s*\((\d+)\s*#5\s*cars\)/i);
   return {
-    source: SOURCE_URL,
+    source: "http://roster.transithistory.org/",
+    updated: getUpdatedDate(html),
     active: activeMatch
       ? {
           total: Number(activeMatch[1]),
@@ -41,7 +47,8 @@ function getOL(html: string) {
   const activeMatch = actives?.match(/Active Orange Line Fleet:\s*(\d+)\s*cars\s*\((\d+)\s*#14\s*cars\)/i);
   const outMatch = oos?.match(/Out of Service Orange Line cars\s*(\d+)\s*cars\s*\((\d+)\s*#\s*14\s*cars\)/i);
   return {
-    source: SOURCE_URL,
+    source: "http://roster.transithistory.org/",
+    updated: getUpdatedDate(html),
     active: activeMatch
       ? {
           total: Number(activeMatch[1]),
@@ -69,7 +76,8 @@ function getRL(html: string) {
   const activeMatch = actives?.match(/Red Line Active Fleet:\s*(\d+)\s*cars\s*\((\d+)\s*#1.*?,\s*(\d+)\s*#2.*?,\s*(\d+)\s*#3.*?,\s*and\s*(\d+)\s*#4/i);
   const outMatch = oos?.match(/Out of Service Red Line cars:\s*(\d+)\s*cars\s*\((\d+)\s*#2/i);
   return {
-    source: SOURCE_URL,
+    source: "http://roster.transithistory.org/",
+    updated: getUpdatedDate(html),
     active: activeMatch
       ? {
           total: Number(activeMatch[1]),
@@ -107,7 +115,8 @@ function getGL(html: string) {
   const mattapanMatch = mattapan?.match(/Mattapan-Ashmont Fleet:\s*(\d+)\s*cars\s*\((\d+)\s*PCC cars,\s*(\d+)\s*in service,\s*(\d+)\s*out of service\)/i);
   
   return {
-    source: SOURCE_URL,
+    source: "http://roster.transithistory.org/",
+    updated: getUpdatedDate(html),
     active: activeMatch
       ? {
           total: Number(activeMatch[1]),
@@ -145,7 +154,8 @@ function getCR(html: string) {
   const coachMatch = coaches?.match(/Coaches\s*\((\d+)\s*coaches.*?\+\s*(\d+)\s*on order\)/i);
   
   return {
-    source: SOURCE_URL,
+    source: "http://roster.transithistory.org/",
+    updated: getUpdatedDate(html),
     coaches: coachMatch
       ? {
           active: Number(coachMatch[1]),
@@ -160,7 +170,7 @@ const app = express();
 app.get("/", (_req, res) => {
   res.json({ 
     status: "ok", 
-    source: SOURCE_URL,
+    source: "http://roster.transithistory.org/",
     endpoints: {
       blueLine: "/api/bl",
       orangeLine: "/api/ol",
